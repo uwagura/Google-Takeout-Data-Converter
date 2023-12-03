@@ -13,8 +13,8 @@ def make_reader(in_json):
 
     # Get the easy fields
     for item in json_data['locations']:
-        date = datetime.datetime.fromtimestamp(int(item['timestampMs'])/1000).strftime('%Y-%m-%d')
-        timestamp = datetime.datetime.fromtimestamp(int(item['timestampMs'])/1000).strftime('%H:%M:%S')
+        date = datetime.datetime.fromisoformat(item['timestamp']).strftime('%Y-%m-%d')
+        timestamp = datetime.datetime.fromisoformat(item['timestamp']).strftime('%H:%M:%S')
         longitude = item['longitudeE7']/10000000.0
         latitude = item['latitudeE7']/10000000.0
         accuracy = item['accuracy']
