@@ -10,6 +10,7 @@ def make_reader(in_json):
 
     # Open location history data
     json_data = json.loads(open(in_json).read())
+    i = 0
 
     # Get the easy fields
     for item in json_data['locations']:
@@ -21,9 +22,9 @@ def make_reader(in_json):
 
     # If there are any recorded activities in this entry, pick them apart by navigating through the json
         try:
-            activities = build_field_dict(item['activitys'][0]['activities'])
-            sub_date = datetime.datetime.fromtimestamp(int(item['activitys'][0]['timestampMs'])/1000).strftime('%Y-%m-%d')
-            sub_timestamp = datetime.datetime.fromtimestamp(int(item['activitys'][0]['timestampMs'])/1000).strftime('%H:%M:%S')
+            activities = build_field_dict(item['activity'][0]['activity'])
+            sub_date = datetime.datetime.fromisoformat(item['activity'][0]['timestamp']).strftime('%Y-%m-%d')
+            sub_timestamp = datetime.datetime.fromisoformat(item['activity'][0]['timestamp']).strftime('%H:%M:%S')
         except:
             activities = None
             sub_date = None
@@ -35,7 +36,7 @@ def build_field_dict(in_dict):
 
     # This converts the list of dictionaries holding confidence values into one dictionary mapping each activity to its
     # respective confidence.
-    return dict((in_dict['type'], in_dict['confidence']) for in_dict in in_dict)
+    return dict((entry['type'], entry['confidence']) for entry in in_dict)
 
 def setup_fields(in_layer):
 
@@ -70,7 +71,7 @@ def setup_fields(in_layer):
     accuracy_field = FieldDefn('Accuracy', ogr.OFTInteger)
     in_layer.CreateField(accuracy_field)
 
-    for confidence_field in ['still', 'tilting', 'inVehicle', 'onBicycle', 'walking', 'onFoot', 'unknown']:
+    for confidence_field in ['STILL', 'TILTING', 'IN_VEHICLE', 'ON_BICYCLE', 'WALKING', 'ON_FOOT', 'UNKNOWN']:
         add_field = FieldDefn(confidence_field, ogr.OFTInteger)
         in_layer.CreateField(add_field)
 
@@ -87,7 +88,7 @@ def fill_fields(in_feature, in_entry):
     in_feature.SetField('Latitude', in_entry[5])
     in_feature.SetField('Accuracy', in_entry[6])
 
-    for confidence_field in ['still', 'tilting', 'inVehicle', 'onBicycle', 'walking', 'onFoot', 'unknown']:
+    for confidence_field in ['STILL', 'TILTING', 'IN_VEHICLE', 'ON_BICYCLE', 'WALKING', 'ON_FOOT', 'UNKNOWN']:
         try:
             in_feature.SetField(confidence_field, in_entry[7][confidence_field])
         except:
